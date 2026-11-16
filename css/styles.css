@@ -1328,7 +1328,6 @@ body.dark-theme .quiz-explanation-box {
   align-items: center;
   margin-bottom: 0.75rem;
   color: #94a3b8;
-  font-size: 0.85rem;
 }
 
 .code-editor-area {
@@ -1358,6 +1357,108 @@ body.dark-theme .quiz-explanation-box {
   overflow-y: auto;
   color: #38bdf8;
   white-space: pre-wrap;
+}
+
+/* 7. LABORATORIO INTERACTIVO: CAPTURA DEL DOM Y CONDICIONALES (UT2 - S11) */
+.dom-lab-card {
+  background: var(--bg-card);
+  border: 1px solid var(--border);
+  border-radius: var(--radius-md);
+  padding: 1.5rem;
+  margin: 1.5rem 0;
+  box-shadow: var(--shadow-sm);
+}
+
+.dom-lab-grid {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 1.5rem;
+  margin-top: 1.25rem;
+}
+
+@media (max-width: 900px) {
+  .dom-lab-grid {
+    grid-template-columns: 1fr;
+  }
+}
+
+.dom-form-preview {
+  background: #f8fafc;
+  border: 2px dashed #cbd5e1;
+  border-radius: var(--radius-sm);
+  padding: 1.25rem;
+  display: flex;
+  flex-direction: column;
+  gap: 0.85rem;
+}
+
+body.dark-theme .dom-form-preview {
+  background: #0f172a;
+  border-color: #334155;
+}
+
+.dom-element-target {
+  transition: all 0.25s ease;
+}
+
+.dom-element-target.dom-highlight {
+  border-color: #3b82f6 !important;
+  box-shadow: 0 0 0 3px rgba(59, 130, 246, 0.4) !important;
+  transform: scale(1.02);
+}
+
+.dom-code-panel {
+  background: #0f172a;
+  border: 1px solid #334155;
+  border-radius: var(--radius-sm);
+  padding: 1rem;
+  font-family: 'Consolas', 'Fira Code', monospace;
+  font-size: 0.84rem;
+  color: #e2e8f0;
+  overflow-x: auto;
+}
+
+.dom-code-line {
+  padding: 0.2rem 0.4rem;
+  border-radius: 4px;
+  transition: background 0.2s ease;
+}
+
+.dom-code-line.active-line {
+  background: rgba(59, 130, 246, 0.35);
+  border-left: 3px solid #60a5fa;
+  color: #ffffff;
+}
+
+.dom-trace-log {
+  background: #090d16;
+  border: 1px solid #1e293b;
+  border-radius: var(--radius-sm);
+  padding: 0.75rem;
+  margin-top: 1rem;
+  font-family: monospace;
+  font-size: 0.82rem;
+  color: #a7f3d0;
+  min-height: 85px;
+  white-space: pre-wrap;
+}
+
+.dom-preset-btn {
+  background: var(--bg-card);
+  border: 1px solid var(--border-strong);
+  color: var(--text-main);
+  padding: 0.35rem 0.65rem;
+  border-radius: var(--radius-sm);
+  font-size: 0.78rem;
+  font-weight: 600;
+  cursor: pointer;
+  transition: var(--transition);
+}
+
+.dom-preset-btn:hover {
+  background: var(--primary-light);
+  color: #ffffff;
+  border-color: var(--primary-light);
 }
 
 /* ==========================================================================

@@ -26,13 +26,14 @@ La plataforma desarrolla el currículo oficial sesión por sesión (36 sesiones 
 
 ---
 
-## 🛠️ Ejercicios Oficiales de la UT1 Desarrollados e Interactivos
+## 🛠️ Herramientas y Ejercicios Interactivos Oficiales
 
-1. **Scratch (Sesión 07):** Mini-juego interactivo de canvas jugable con personaje saltador que esquiva un objeto móvil en bucle lateral con detección de colisiones, puntuación y récord, acompañado de la transcripción de bloques de Scratch.
-2. **Pseudocódigo (Sesión 03):** Calculadora estructurada interactiva con traza en consola: petición de 2 números, selección de 4 operaciones (+, -, \*, /) y control de división entre cero.
-3. **Diagrama de Flujo (Sesión 04):** Ordinograma interactivo con simbología ISO (óvalos, paralelogramos, rombos y rectángulos) que evalúa el control de temperatura de un servidor en rack iluminando los nodos de ejecución según el valor introducido.
-4. **Tabla de Decisión Binaria (Sesión 05):** Matriz interactiva de $2^2 = 4$ reglas lógicas para el diagnóstico de conectividad de red local (cable conectado vs. asignación de IP por DHCP).
-5. **Cuestionario Oficial UT1 (Sesión 10):** Batería de 10 preguntas tipo test con corrección automática, justificación pedagógica inmediata y calificación sobre 10.
+1. **Laboratorio del DOM y Condicionales (UT2 - Sesión 11):** Simulador visual interactivo que demuestra la captura de elementos HTML mediante `document.getElementById()`, lectura con `.value`, conversión con `Number()`, evaluación condicional con `if / if-else` y modificación del DOM (`.textContent`, `.style`). Incluye escenarios técnicos reales de SMR (IPs locales, puertos HTTP/HTTPS y alertas de seguridad).
+2. **Scratch (UT1 - Sesión 07):** Mini-juego interactivo de canvas jugable con personaje saltador que esquiva un objeto móvil en bucle lateral con detección de colisiones, puntuación y récord, acompañado de la transcripción de bloques de Scratch.
+3. **Pseudocódigo (UT1 - Sesión 03):** Calculadora estructurada interactiva con traza en consola: petición de 2 números, selección de 4 operaciones (+, -, \*, /) y control de división entre cero.
+4. **Diagrama de Flujo (UT1 - Sesión 04):** Ordinograma interactivo con simbología ISO (óvalos de inicio/fin, paralelogramos de lectura, rombo de decisión, rectángulos de proceso y formas de documento onduladas para escribir) para el cálculo de número par/impar (`num MOD 2`).
+5. **Tabla de Decisión Binaria (UT1 - Sesión 05):** Matriz interactiva de $2^2 = 4$ reglas lógicas para el diagnóstico de conectividad de red local (cable conectado vs. asignación de IP por DHCP).
+6. **Cuestionario Oficial UT1 (UT1 - Sesión 10):** Batería de 10 preguntas tipo test con corrección automática, justificación pedagógica inmediata y calificación sobre 10.
 
 ---
 

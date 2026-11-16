@@ -164,7 +164,7 @@ const CURRICULO_DATA = {
       ra: "RA3 (CE3*) - RA Crítico",
       horas: 10,
       evaluacion: 1,
-      descripcion: "Lógica condicional (if, if-else, switch), bucles iterativos (while, do-while, for), sentencias de control y salto, manejo robusto de excepciones (try-catch-finally, throw) y depuración en DevTools.",
+      descripcion: "Captura e interacción con elementos del DOM mediante document.getElementById, lógica condicional (if, if-else, switch), bucles iterativos (while, do-while, for), sentencias de control y salto, manejo robusto de excepciones (try-catch-finally, throw) y depuración en DevTools.",
       icon: "git-branch"
     },
     {
@@ -674,135 +674,392 @@ Batería de 10 preguntas tipo test autocorregibles para consolidar todos los cri
       numero: 11,
       ut: 2,
       evaluacion: 1,
-      titulo: "Estructuras Condicionales Simples y Dobles: if y if-else",
-      subtema: "2.1 Estructuras de control: alternativas",
-      ras: "RA3 (CE3.a)",
+      titulo: "Captura del DOM con getElementById y Estructuras Condicionales (if / if-else)",
+      subtema: "2.1 Interacción con el DOM y estructuras de control alternativas",
+      ras: "RA3 (CE3.a, CE3.e)",
       duracion: "1 hora",
       tipo: "Teórico-Práctica",
+      interactivo: "dom_condicional",
       objetivos: [
-        "Entender el flujo bifurcado en la toma de decisiones.",
-        "Implementar sentencias \`if\` simples y bloques alternativos \`if-else\`.",
-        "Validar condiciones complejas combinando operadores lógicos (\`&&\`, \`||\`, \`!\`)."
+        "Comprender qué es el DOM (Document Object Model) y cómo conecta el documento HTML con el script JavaScript.",
+        "Dominar la captura de elementos HTML mediante 'document.getElementById()' para leer valores de entrada (.value), modificar contenido (.textContent / .innerHTML) y alterar estilos (.style).",
+        "Implementar estructuras condicionales alternativas simples ('if') y dobles ('if-else') evaluando datos introducidos por el usuario en formularios web.",
+        "Evitar errores críticos de tipado realizando conversiones explícitas con 'Number()' sobre '.value' y ubicar el script correctamente al final del '<body>' o con 'defer'."
       ],
       teoria: `
-### Sintaxis de la estructura alternativa doble:
-\`\`\`javascript
-let intentosFallidos = 3;
-const MAX_INTENTOS = 3;
+### 1. ¿Por qué necesitamos el DOM en las Estructuras de Control?
+En la UT1 hemos programado con variables estáticas o con \`console.log\`. Sin embargo, en el desarrollo web y en las herramientas técnicas de administración en SMR, las **estructuras de control** (\`if\`, \`if-else\`, \`switch\`) toman decisiones a partir de **datos introducidos por el usuario** en la interfaz (cajas de texto, botones, selectores).
 
-if (intentosFallidos >= MAX_INTENTOS) {
-    console.warn("Cuenta bloqueada por seguridad. Contacte con el administrador de Carlos III.");
+El **DOM (Document Object Model)** es la estructura en forma de árbol que el navegador genera en memoria a partir del código HTML. Cada etiqueta (\`<input>\`, \`<button>\`, \`<div>\`, \`<p>\`) se convierte en un **objeto** accesible y manipulable desde nuestro script JavaScript.
+
+---
+
+### 2. El Método Fundamental: \`document.getElementById("miId")\`
+Es el método más rápido, directo y utilizado para capturar un elemento del HTML mediante su atributo identificador único (\`id\`):
+
+\`\`\`javascript
+// Sintaxis general:
+const miElemento = document.getElementById("identificador");
+\`\`\`
+
+#### Reglas de Oro imprescindibles:
+1. **El atributo \`id\` debe ser único** en todo el documento HTML (ejemplo: \`<input id="txtIp">\`).
+2. **Sin almohadilla (#):** A diferencia de CSS o \`querySelector\`, en \`getElementById\` se pasa únicamente el nombre entre comillas: \`document.getElementById("txtIp")\` *(¡NUNCA con "#txtIp"!)*.
+3. **¿Qué devuelve?:**
+   - Si el elemento existe en el HTML: Devuelve la referencia al objeto del elemento (\`HTMLInputElement\`, \`HTMLParagraphElement\`, etc.).
+   - Si el elemento **NO existe** o el \`id\` está mal escrito: Devuelve \`null\`.
+
+---
+
+### 3. Operaciones Esenciales con el Elemento Capturado
+
+#### A) Lectura de datos introducidos (\`.value\`)
+Se utiliza en elementos de formulario (\`<input>\`, \`<select>\`, \`<textarea>\`):
+\`\`\`javascript
+const inputUsuario = document.getElementById("txtUsuario");
+let nombre = inputUsuario.value; // Obtiene el texto escrito
+\`\`\`
+
+> ⚠️ **¡ADVERTENCIA CRÍTICA DE EXAMEN - TIPADO!**
+> La propiedad \`.value\` devuelve **SIEMPRE una cadena de texto (\`string\`)**, incluso si el input es \`type="number"\`.
+> Si se compara directamente \`if (inputPuerto.value > 1024)\`, JavaScript puede realizar comparaciones lexicográficas erróneas o concatenaciones no deseadas.
+> **Es obligatorio convertir a número con \`Number()\` o \`parseInt()\`:**
+> \`\`\`javascript
+> const puerto = Number(document.getElementById("txtPuerto").value);
+> \`\`\`
+
+#### B) Escritura y modificación en pantalla (\`.textContent\` vs \`.innerHTML\`)
+Para mostrar mensajes, diagnósticos o resultados en etiquetas como \`<div>\`, \`<p>\` o \`<span>\`:
+- **\`.textContent\` (Recomendado):** Inserta texto plano de forma segura, evitando inyecciones de código malicioso (XSS).
+  \`\`\`javascript
+  document.getElementById("lblMensaje").textContent = "Conexión autorizada";
+  \`\`\`
+- **\`.innerHTML\`:** Permite inyectar etiquetas HTML con formato (negritas, iconos, colores).
+  \`\`\`javascript
+  document.getElementById("lblMensaje").innerHTML = "<strong>Estado:</strong> Conectado";
+  \`\`\`
+
+#### C) Modificación dinámica de estilos CSS (\`.style\`)
+\`\`\`javascript
+const panel = document.getElementById("panelAlerta");
+panel.style.color = "white";
+panel.style.backgroundColor = "#dc2626"; // Fondo rojo
+panel.style.display = "block";           // Hacer visible
+\`\`\`
+
+---
+
+### 4. Estructuras Condicionales (\`if\` / \`if-else\`) aplicadas al DOM
+
+#### Sintaxis Formal:
+\`\`\`javascript
+if (condiciónBooleana) {
+    // Bloque que se ejecuta si la condición es VERDADERA (true)
 } else {
-    console.log("Acceso concedido al terminal.");
+    // Bloque que se ejecuta si la condición es FALSA (false)
 }
 \`\`\`
-### Operadores lógicos esenciales:
-- **AND (\`&&\`):** Ambas condiciones deben ser verdaderas.
-- **OR (\`||\`):** Al menos una condición debe ser verdadera.
-- **NOT (\`!\`):** Niega o invierte el valor de verdad.
+
+#### Ejemplo Completo: Verificador de Contraseña de Switch (HTML + JS)
+
+**Estructura HTML (\`index.html\`):**
+\`\`\`html
+<label for="claveSwitch">Contraseña de acceso:</label>
+<input type="password" id="claveSwitch" placeholder="Introduce la clave">
+<button id="btnConectar" onclick="verificarAcceso()">Acceder al Switch</button>
+<div id="resultadoAcceso"></div>
+
+<!-- ¡IMPORTANTE!: Script colocado al final del body -->
+<script src="script.js"></script>
+\`\`\`
+
+**Lógica JavaScript (\`script.js\`):**
+\`\`\`javascript
+function verificarAcceso() {
+    // 1. Capturar elementos del DOM mediante su ID
+    const inputClave = document.getElementById("claveSwitch");
+    const divResultado = document.getElementById("resultadoAcceso");
+
+    // 2. Extraer el valor ingresado
+    const password = inputClave.value;
+
+    // 3. Estructura condicional alternativa doble (if / else)
+    if (password === "cisco2026") {
+        divResultado.textContent = "✔ Acceso concedido al terminal del Switch Cisco.";
+        divResultado.style.color = "#15803d"; // Verde éxito
+        divResultado.style.backgroundColor = "#dcfce7";
+    } else {
+        divResultado.textContent = "✖ Clave incorrecta. Intento registrado en el syslog.";
+        divResultado.style.color = "#b91c1c"; // Rojo alerta
+        divResultado.style.backgroundColor = "#fee2e2";
+    }
+}
+\`\`\`
+
+---
+
+### 5. ¿Por qué el \`<script>\` debe colocarse al final del \`<body>\`?
+Si situamos el archivo \`script.js\` en la cabecera (\`<head>\`) sin el atributo \`defer\`, el código JavaScript se ejecutará **antes** de que el navegador haya creado los elementos en el DOM. En consecuencia:
+\`document.getElementById("claveSwitch")\` devolverá **\`null\`**, y al intentar acceder a \`.value\` el navegador lanzará el error:
+\`\`\`text
+Uncaught TypeError: Cannot read properties of null (reading 'value')
+\`\`\`
+**Solución estándar en SMR:** Colocar \`<script src="app.js"></script>\` justo antes de la etiqueta de cierre \`</body>\`.
       `,
       practica: `
-**Ejercicio:** Escribe un script que solicite al usuario su dirección IP local. Si la IP comienza por "192.168." o "10.", mostrar: "IP privada de red de área local". En caso contrario, mostrar "IP pública o externa".
+**Laboratorio Práctico en el Aula de Informática:**
+Crea una herramienta web de validación de direcciones IP para los puestos del CIFP Carlos III:
+1. Diseña un documento HTML con:
+   - Un campo \`<input type="text" id="ipInput" placeholder="Ej: 192.168.1.50">\`.
+   - Un botón \`<button onclick="comprobarIp()">Comprobar IP</button>\`.
+   - Un párrafo \`<p id="feedbackIp"></p>\`.
+2. En el archivo JavaScript:
+   - Captura el input con \`document.getElementById("ipInput")\`.
+   - Captura el párrafo con \`document.getElementById("feedbackIp")\`.
+   - Extrae el texto con \`.value\`.
+   - Utiliza una estructura \`if-else\` comprobando si la IP empieza por \`"192.168."\` o \`"10."\`:
+     - Si es así, escribe *"IP Privada válida para la red del centro"* en color verde.
+     - En caso contrario, escribe *"Alerta: IP Pública o no perteneciente a red local"* en color rojo.
       `,
       solucion: `
-\`\`\`javascript
-let ip = "192.168.1.50";
-if (ip.startsWith("192.168.") || ip.startsWith("10.")) {
-    console.log("IP privada de red de área local.");
-} else {
-    console.log("IP pública o externa.");
-}
+\`\`\`html
+<!-- index.html -->
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <title>Validador de Red</title>
+</head>
+<body>
+    <h2>Validador de IP - CIFP Carlos III</h2>
+    <input type="text" id="ipInput" placeholder="192.168.1.10">
+    <button onclick="comprobarIp()">Comprobar IP</button>
+    <p id="feedbackIp"></p>
+
+    <script>
+        function comprobarIp() {
+            // 1. Captura de elementos por ID
+            const campo = document.getElementById("ipInput");
+            const respuesta = document.getElementById("feedbackIp");
+
+            // 2. Obtención del valor
+            const ip = campo.value.trim();
+
+            // 3. Estructura condicional
+            if (ip.startsWith("192.168.") || ip.startsWith("10.")) {
+                respuesta.textContent = "✔ IP Privada válida de red local.";
+                respuesta.style.color = "#16a34a";
+            } else {
+                respuesta.textContent = "✖ IP Pública o no autorizada en LAN.";
+                respuesta.style.color = "#dc2626";
+            }
+        }
+    </script>
+</body>
+</html>
 \`\`\`
       `,
-      recursos: ["Playground JS integrado"]
+      recursos: ["Simulador interactivo del DOM integrado", "Consola de desarrollador (F12)", "W3Schools HTML DOM getElementById"]
     },
     {
       id: "s12",
       numero: 12,
       ut: 2,
       evaluacion: 1,
-      titulo: "Estructuras Condicionales Múltiples y Operador Ternario",
-      subtema: "2.1 Estructuras de control: alternativas",
+      titulo: "Estructuras Condicionales Múltiples (if - else if - else) y Captura de DOM",
+      subtema: "2.1 Estructuras de control: alternativas múltiples",
       ras: "RA3 (CE3.a)",
       duracion: "1 hora",
       tipo: "Teórico-Práctica",
       objetivos: [
-        "Encadenar múltiples condiciones mediante \`if - else if - else\` de forma eficiente.",
-        "Aprender a utilizar el operador condicional ternario (\`condición ? expr1 : expr2\`).",
-        "Clasificar estados de carga de procesador y servicios en un servidor."
+        "Encadenar múltiples condiciones excluyentes mediante \`if - else if - else\` de forma eficiente.",
+        "Capturar entradas numéricas del DOM con \`document.getElementById()\` y aplicar conversión con \`Number()\`/ \`parseFloat()\`.",
+        "Aprender a utilizar el operador condicional ternario (\`condición ? expr1 : expr2\`) para asignaciones breves.",
+        "Clasificar estados de carga de servidores y enlaces de telecomunicaciones en una interfaz web real."
       ],
       teoria: `
-### Estructura Encadenada \`if - else if - else\`:
+### Estructura Encadenada \`if - else if - else\`
+Cuando un problema presenta más de dos posibilidades mutuamente excluyentes, encadenamos condiciones que se evalúan secuencialmente de arriba a abajo. En el momento en que una se cumple, se ejecuta su bloque y se omiten todas las demás:
+
 \`\`\`javascript
-let usoCPU = 88; // Porcentaje de uso
-
-if (usoCPU < 50) {
-    console.log("Estado: Óptimo (Verde)");
-} else if (usoCPU < 80) {
-    console.log("Estado: Advertencia de carga moderada (Amarillo)");
-} else if (usoCPU <= 100) {
-    console.log("Estado: Alerta crítica de sobrecarga (Rojo)");
+if (condición1) {
+    // Se ejecuta si condición1 es true
+} else if (condición2) {
+    // Se ejecuta si condición1 fue false y condición2 es true
+} else if (condición3) {
+    // Se ejecuta si las anteriores fueron false y condición3 es true
 } else {
-    console.error("Lectura anómala del sensor de CPU.");
+    // Se ejecuta si NINGUNA de las condiciones anteriores fue true
 }
+\`\`\`
 
-// Operador Ternario (Sintaxis compacta):
-let mensajeAlerta = usoCPU > 80 ? "¡Enviar SMS al técnico!" : "Sin incidencias";
+---
+
+### Ejemplo Práctico Integrado con el DOM: Monitor de Carga de CPU
+
+**HTML:**
+\`\`\`html
+<label for="numCpu">Uso de CPU del Servidor (%):</label>
+<input type="number" id="numCpu" min="0" max="100" placeholder="0 - 100">
+<button onclick="evaluarServidor()">Analizar Estado</button>
+<div id="badgeEstado">Sin mediciones</div>
+\`\`\`
+
+**JavaScript:**
+\`\`\`javascript
+function evaluarServidor() {
+    // 1. Capturar elementos del DOM
+    const inputCpu = document.getElementById("numCpu");
+    const badge = document.getElementById("badgeEstado");
+
+    // 2. Extraer valor y CONVERTIR OBLIGATORIAMENTE a número
+    const cpu = Number(inputCpu.value);
+
+    // 3. Validación y estructura condicional múltiple
+    if (isNaN(cpu) || cpu < 0 || cpu > 100) {
+        badge.textContent = "Error: Introduzca un porcentaje válido entre 0 y 100.";
+        badge.style.color = "#991b1b";
+    } else if (cpu < 50) {
+        badge.textContent = "Estado: Óptimo (Carga normal de trabajo).";
+        badge.style.color = "#15803d"; // Verde
+    } else if (cpu < 80) {
+        badge.textContent = "Estado: Advertencia (Carga moderada en el servidor).";
+        badge.style.color = "#d97706"; // Ámbar
+    } else {
+        badge.textContent = "Estado: ¡ALERTA CRÍTICA! Sobrecarga inminente.";
+        badge.style.color = "#b91c1c"; // Rojo
+    }
+
+    // 4. Operador Ternario para asignación compacta:
+    // variable = condición ? valorSiVerdadero : valorSiFalso;
+    const nivelPrioridad = cpu >= 80 ? "Alta" : "Normal";
+    console.log("Prioridad de atención técnica: " + nivelPrioridad);
+}
 \`\`\`
       `,
       practica: `
-**Reto:** Programa una escala de clasificación de la velocidad de un enlace de red fibra (en Mbps):
-- < 100 Mbps: "Fast Ethernet (Obsoleto)"
-- 100 a 999 Mbps: "Gigabit Ethernet estándar"
-- >= 1000 Mbps: "Fibra de alta velocidad / 10 GbE"
+**Reto SMR en el aula:**
+Diseña un script con interfaz HTML que clasifique la velocidad de una conexión de fibra óptica medida en Mbps (capturada con \`document.getElementById("mbpsInput")\`):
+- Menor a 100 Mbps: "Fast Ethernet (Enlace obsoleto o saturado)" en color gris.
+- Entre 100 y 999 Mbps: "Gigabit Ethernet (Velocidad estándar de aula)" en color azul.
+- Mayor o igual a 1000 Mbps: "10 GbE / Fibra troncal de alta velocidad" en color verde.
+Muestra el resultado dentro de un \`<div id="resultadoFibra">\`.
       `,
-      solucion: "Código con estructura if - else if - else validando rangos con operadores relacionales.",
-      recursos: ["Consola interactiva"]
+      solucion: `
+\`\`\`javascript
+function clasificarVelocidad() {
+    const input = document.getElementById("mbpsInput");
+    const salida = document.getElementById("resultadoFibra");
+    const mbps = parseFloat(input.value);
+
+    if (isNaN(mbps) || mbps <= 0) {
+        salida.textContent = "Introduzca un ancho de banda mayor a cero.";
+        salida.style.color = "red";
+    } else if (mbps < 100) {
+        salida.textContent = "Fast Ethernet (Enlace obsoleto o saturado)";
+        salida.style.color = "gray";
+    } else if (mbps < 1000) {
+        salida.textContent = "Gigabit Ethernet (Velocidad estándar de aula)";
+        salida.style.color = "blue";
+    } else {
+        salida.textContent = "10 GbE / Fibra troncal de alta velocidad";
+        salida.style.color = "green";
+    }
+}
+\`\`\`
+      `,
+      recursos: ["Consola interactiva", "Documentación MDN Operador Ternario"]
     },
     {
       id: "s13",
       numero: 13,
       ut: 2,
       evaluacion: 1,
-      titulo: "Selección Múltiple: switch...case y Sentencia break",
-      subtema: "2.1 Estructuras de control: alternativas",
+      titulo: "Selección Múltiple: switch...case, break y Menús en el DOM",
+      subtema: "2.1 Estructuras de control: alternativas múltiples",
       ras: "RA3 (CE3.a, CE3.c)",
       duracion: "1 hora",
       tipo: "Taller Práctico",
       interactivo: "consola_js",
       objetivos: [
-        "Sustituir largas cadenas de \`if-else\` por la sentencia clara \`switch\`.",
-        "Comprender la importancia de la palabra clave \`break\` y el bloque por defecto \`default\`.",
-        "Desarrollar un menú de gestión de servicios de red en consola."
+        "Sustituir cadenas extensas de \`if-else if\` con la sentencia estructurada \`switch\`.",
+        "Comprender la obligatoriedad de la sentencia de salto \`break\` para evitar la ejecución en cascada (*fall-through*).",
+        "Capturar la opción seleccionada de un elemento \`<select>\` del DOM con \`document.getElementById()\`.",
+        "Implementar un menú técnico de gestión de protocolos de red y servicios de telecomunicaciones."
       ],
       teoria: `
-### Sintaxis de \`switch\`:
-\`\`\`javascript
-let comando = "reiniciar";
+### La Sentencia \`switch...case\`
+Cuando una misma variable se compara por igualdad estricta (\`===\`) frente a múltiples valores constantes, la sentencia \`switch\` es mucho más limpia, legible y optimizada que múltiples \`if\`:
 
-switch (comando.toLowerCase()) {
-    case "iniciar":
-        console.log("Iniciando servicio Apache...");
-        break;
-    case "detener":
-        console.log("Deteniendo servicio Apache...");
-        break;
-    case "reiniciar":
-        console.log("Reiniciando servicio Apache...");
-        break;
-    case "estado":
-        console.log("Servicio Apache activo y escuchando en el puerto 80.");
+\`\`\`javascript
+switch (expresion) {
+    case valor1:
+        // Código para valor1
+        break; // Detiene la evaluación y sale del switch
+    case valor2:
+        // Código para valor2
         break;
     default:
-        console.warn("Comando desconocido. Opciones: iniciar, detener, reiniciar, estado.");
+        // Código si no coincide con ningún caso anterior
+}
+\`\`\`
+
+---
+
+### Ejemplo con Elemento \`<select>\` del DOM
+
+**HTML:**
+\`\`\`html
+<label for="selectProtocolo">Selecciona un puerto de red:</label>
+<select id="selectProtocolo">
+    <option value="21">Puerto 21</option>
+    <option value="22">Puerto 22</option>
+    <option value="80">Puerto 80</option>
+    <option value="443">Puerto 443</option>
+    <option value="3306">Puerto 3306</option>
+</select>
+<button onclick="identificarProtocolo()">Identificar Servicio</button>
+<p id="infoProtocolo"></p>
+\`\`\`
+
+**JavaScript:**
+\`\`\`javascript
+function identificarProtocolo() {
+    // 1. Capturar elementos del DOM
+    const combo = document.getElementById("selectProtocolo");
+    const parrafo = document.getElementById("infoProtocolo");
+
+    // 2. Extraer el valor seleccionado (como texto o número)
+    const puerto = combo.value;
+
+    // 3. Estructura de selección múltiple
+    switch (puerto) {
+        case "21":
+            parrafo.textContent = "FTP (File Transfer Protocol): Transferencia de ficheros no cifrada.";
+            break;
+        case "22":
+            parrafo.textContent = "SSH (Secure Shell): Administración remota segura de terminales.";
+            break;
+        case "80":
+            parrafo.textContent = "HTTP: Protocolo web estándar sin cifrado.";
+            break;
+        case "443":
+            parrafo.textContent = "HTTPS: Protocolo web seguro con cifrado TLS/SSL.";
+            break;
+        case "3306":
+            parrafo.textContent = "MySQL / MariaDB: Servicio gestor de base de datos relacional.";
+            break;
+        default:
+            parrafo.textContent = "Puerto no catalogado en esta lista rápida de SMR.";
+    }
 }
 \`\`\`
       `,
       practica: `
-Crea un menú con \`switch\` que reciba el número de puerto de un protocolo de red (21, 22, 25, 53, 80, 443) e imprima el nombre del protocolo asociado (FTP, SSH, SMTP, DNS, HTTP, HTTPS).
+Crea un menú con \`<select id="selectAccion">\` que tenga las acciones de un servicio de red: "iniciar", "detener", "reiniciar", "estado". Al pulsar un botón, captura el valor con \`document.getElementById\` y mediante un \`switch\` escribe en un \`<div id="consolaSalida">\` el comando de Linux equivalente (\`systemctl start apache2\`, etc.).
       `,
-      solucion: "Switch con casos para 21, 22, 25, 53, 80, 443 y default para 'Puerto no catalogado en esta lista'.",
-      recursos: ["Playground JS"]
+      solucion: "Uso de getElementById con select.value y switch evaluando cada string con su comando systemctl correspondiente.",
+      recursos: ["Playground JS", "Guía oficial de switch en MDN"]
     },
     {
       id: "s14",

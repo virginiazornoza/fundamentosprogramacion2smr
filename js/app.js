@@ -30,7 +30,15 @@ function cargarDatosPersonalizados() {
   try {
     const saved = localStorage.getItem('carlos3_fp_data');
     if (saved) {
-      AppState.customData = JSON.parse(saved);
+      const parsed = JSON.parse(saved);
+      // Si la versión en caché no incluye la actualización de la S11 sobre el DOM, refrescar con CURRICULO_DATA
+      const s11 = parsed.sesiones ? parsed.sesiones.find(s => s.id === 's11') : null;
+      if (!s11 || !s11.titulo.includes('DOM')) {
+        AppState.customData = JSON.parse(JSON.stringify(CURRICULO_DATA));
+        guardarDatosEnLocal();
+      } else {
+        AppState.customData = parsed;
+      }
     } else {
       AppState.customData = JSON.parse(JSON.stringify(CURRICULO_DATA));
     }
@@ -541,6 +549,8 @@ function renderizarVistaSesion(sessionId) {
     interactivoHtml = generarComponenteScratch();
   } else if (sesion.interactivo === 'cuestionario_ut1') {
     interactivoHtml = generarComponenteCuestionarioUT1();
+  } else if (sesion.interactivo === 'dom_condicional') {
+    interactivoHtml = generarComponenteDomCondicional();
   } else if (sesion.interactivo === 'consola_js') {
     interactivoHtml = generarComponenteConsolaJS();
   }
@@ -1463,6 +1473,233 @@ function corregirCuestionarioUT1() {
   }
 
   alert(`Cuestionario corregido:\nHas acertado ${correctas} de ${preguntas.length} preguntas.\nCalificación obtenida: ${nota} sobre 10.`);
+}
+
+// 5.B LABORATORIO INTERACTIVO: CAPTURA DEL DOM Y CONDICIONALES (UT2 - S11)
+function generarComponenteDomCondicional() {
+  return `
+    <div class="dom-lab-card">
+      <div style="display: flex; justify-content: space-between; align-items: flex-start; margin-bottom: 0.75rem; flex-wrap: wrap; gap: 0.5rem;">
+        <div>
+          <h3 style="font-size: 1.25rem; font-weight: 800; color: var(--primary);">
+            🧪 Laboratorio Interactivo: Captura de Elementos con getElementById y Condicionales
+          </h3>
+          <p style="font-size: 0.88rem; color: var(--text-muted);">
+            Experimenta en vivo el ciclo completo: <strong>HTML (Formulario)</strong> ➔ <strong>Captura con document.getElementById()</strong> ➔ <strong>Lectura (.value) y Conversión (Number)</strong> ➔ <strong>Evaluación (if / if-else)</strong> ➔ <strong>Modificación del DOM (.textContent y .style)</strong>.
+          </p>
+        </div>
+        <span class="unit-badge" style="background: #eff6ff; color: #1d4ed8;">UT2 • Sesión 11</span>
+      </div>
+
+      <!-- Botones de Escenarios Rápidos -->
+      <div style="display: flex; flex-wrap: wrap; gap: 0.5rem; margin-bottom: 1rem; align-items: center;">
+        <span style="font-size: 0.8rem; font-weight: 700; color: var(--text-muted);">Cargar Escenarios Técnicos:</span>
+        <button type="button" class="dom-preset-btn" onclick="cargarEscenarioDom('lan_http')">
+          🟢 1. LAN HTTP (192.168.1.50 : 80)
+        </button>
+        <button type="button" class="dom-preset-btn" onclick="cargarEscenarioDom('lan_https')">
+          🔒 2. LAN HTTPS (192.168.1.200 : 443)
+        </button>
+        <button type="button" class="dom-preset-btn" onclick="cargarEscenarioDom('public_ip')">
+          🔴 3. IP Pública Externa (8.8.8.8 : 80)
+        </button>
+        <button type="button" class="dom-preset-btn" onclick="cargarEscenarioDom('bad_port')">
+          ⚠️ 4. Puerto no numérico (Error de tipado)
+        </button>
+      </div>
+
+      <!-- Cuadrícula Doble: Interfaz Web simulada + Código JavaScript anotado -->
+      <div class="dom-lab-grid">
+        
+        <!-- Panel Izquierdo: Simulación del Documento HTML -->
+        <div class="dom-form-preview">
+          <div style="display: flex; justify-content: space-between; align-items: center; border-bottom: 1px solid var(--border); padding-bottom: 0.4rem;">
+            <strong style="font-size: 0.9rem; color: var(--text-main);">📄 Interfaz HTML (Página del Usuario)</strong>
+            <span style="font-size: 0.75rem; color: #64748b; font-family: monospace;">index.html</span>
+          </div>
+
+          <div class="input-group">
+            <label style="font-size: 0.82rem; font-weight: 700;">
+              Dirección IP (<code style="font-size: 0.78rem;">id="domIpInput"</code>):
+            </label>
+            <input type="text" id="domIpInput" class="input-field dom-element-target" value="192.168.1.50" placeholder="Ej: 192.168.1.50">
+          </div>
+
+          <div class="input-group">
+            <label style="font-size: 0.82rem; font-weight: 700;">
+              Puerto de Servicio (<code style="font-size: 0.78rem;">id="domPuertoInput"</code>):
+            </label>
+            <input type="text" id="domPuertoInput" class="input-field dom-element-target" value="80" placeholder="Ej: 80, 443">
+          </div>
+
+          <button type="button" class="btn-action-primary dom-element-target" id="domBtnComprobar" onclick="ejecutarLaboratorioDom()" style="justify-content: center;">
+            ▶ Disparar Función JS (verificarConexion())
+          </button>
+
+          <!-- Elemento de salida donde JavaScript inyectará el resultado -->
+          <div style="margin-top: 0.5rem;">
+            <label style="font-size: 0.82rem; font-weight: 700; display: block; margin-bottom: 0.25rem;">
+              Panel de Salida (<code style="font-size: 0.78rem;">id="domResultadoBox"</code>):
+            </label>
+            <div id="domResultadoBox" class="dom-element-target" style="padding: 0.75rem 1rem; border-radius: 6px; font-weight: 700; font-size: 0.88rem; background: #e2e8f0; color: #334155; border: 1px solid #cbd5e1; min-height: 44px; display: flex; align-items: center;">
+              Esperando ejecución de la función...
+            </div>
+          </div>
+        </div>
+
+        <!-- Panel Derecho: Código JavaScript Anotado -->
+        <div>
+          <div class="dom-code-panel">
+            <div style="color: #94a3b8; font-size: 0.78rem; border-bottom: 1px solid #334155; padding-bottom: 0.4rem; margin-bottom: 0.5rem; display: flex; justify-content: space-between;">
+              <span>📜 Lógica en JavaScript</span>
+              <span>app.js</span>
+            </div>
+            
+            <div class="dom-code-line" id="line-step-1">
+              <span style="color: #64748b;">// 1. Capturar nodos del DOM mediante su ID</span><br>
+              <span style="color: #f472b6;">const</span> inputIp = <span style="color: #60a5fa;">document</span>.<span style="color: #38bdf8; font-weight: bold;">getElementById</span>(<span style="color: #fde047;">"domIpInput"</span>);<br>
+              <span style="color: #f472b6;">const</span> inputPuerto = <span style="color: #60a5fa;">document</span>.<span style="color: #38bdf8; font-weight: bold;">getElementById</span>(<span style="color: #fde047;">"domPuertoInput"</span>);<br>
+              <span style="color: #f472b6;">const</span> cajaRes = <span style="color: #60a5fa;">document</span>.<span style="color: #38bdf8; font-weight: bold;">getElementById</span>(<span style="color: #fde047;">"domResultadoBox"</span>);
+            </div>
+
+            <div class="dom-code-line" id="line-step-2" style="margin-top: 0.4rem;">
+              <span style="color: #64748b;">// 2. Extraer .value y convertir tipo de dato</span><br>
+              <span style="color: #f472b6;">const</span> ip = inputIp.<span style="color: #a78bfa;">value</span>.trim();<br>
+              <span style="color: #f472b6;">const</span> puerto = <span style="color: #38bdf8; font-weight: bold;">Number</span>(inputPuerto.<span style="color: #a78bfa;">value</span>);
+            </div>
+
+            <div class="dom-code-line" id="line-step-3" style="margin-top: 0.4rem;">
+              <span style="color: #64748b;">// 3. Estructura condicional (if / else)</span><br>
+              <span style="color: #f472b6;">if</span> (isNaN(puerto)) { ... }<br>
+              <span style="color: #f472b6;">else if</span> (ip.startsWith(<span style="color: #fde047;">"192.168."</span>) &amp;&amp; (puerto === 80 || puerto === 443)) { ... }<br>
+              <span style="color: #f472b6;">else</span> { ... }
+            </div>
+
+            <div class="dom-code-line" id="line-step-4" style="margin-top: 0.4rem;">
+              <span style="color: #64748b;">// 4. Inyectar resultado y modificar estilos</span><br>
+              cajaRes.<span style="color: #38bdf8;">textContent</span> = mensaje;<br>
+              cajaRes.<span style="color: #38bdf8;">style</span>.backgroundColor = colorFondo;
+            </div>
+          </div>
+
+          <!-- Traza de ejecución paso a paso -->
+          <div class="dom-trace-log" id="domTraceLog">> Pulsa 'Disparar Función JS' para observar la traza paso a paso del DOM...</div>
+        </div>
+
+      </div>
+    </div>
+  `;
+}
+
+function cargarEscenarioDom(escenario) {
+  const ipField = document.getElementById('domIpInput');
+  const portField = document.getElementById('domPuertoInput');
+  if (!ipField || !portField) return;
+
+  switch (escenario) {
+    case 'lan_http':
+      ipField.value = '192.168.1.50';
+      portField.value = '80';
+      break;
+    case 'lan_https':
+      ipField.value = '192.168.1.200';
+      portField.value = '443';
+      break;
+    case 'public_ip':
+      ipField.value = '8.8.8.8';
+      portField.value = '80';
+      break;
+    case 'bad_port':
+      ipField.value = '192.168.1.15';
+      portField.value = 'puerto_web';
+      break;
+  }
+  ejecutarLaboratorioDom();
+}
+
+function ejecutarLaboratorioDom() {
+  const logBox = document.getElementById('domTraceLog');
+  const steps = ['line-step-1', 'line-step-2', 'line-step-3', 'line-step-4'];
+  const targets = ['domIpInput', 'domPuertoInput', 'domResultadoBox'];
+
+  steps.forEach(s => {
+    const el = document.getElementById(s);
+    if (el) el.classList.remove('active-line');
+  });
+  targets.forEach(t => {
+    const el = document.getElementById(t);
+    if (el) el.classList.remove('dom-highlight');
+  });
+
+  // Paso 1: Captura
+  const line1 = document.getElementById('line-step-1');
+  if (line1) line1.classList.add('active-line');
+
+  const inputIp = document.getElementById('domIpInput');
+  const inputPuerto = document.getElementById('domPuertoInput');
+  const cajaRes = document.getElementById('domResultadoBox');
+
+  if (!inputIp || !inputPuerto || !cajaRes) return;
+
+  inputIp.classList.add('dom-highlight');
+  inputPuerto.classList.add('dom-highlight');
+
+  let log = `> [PASO 1] document.getElementById("domIpInput") -> Nodo ${inputIp.tagName} (#domIpInput)\n`;
+  log += `> [PASO 1] document.getElementById("domPuertoInput") -> Nodo ${inputPuerto.tagName} (#domPuertoInput)\n`;
+  log += `> [PASO 1] document.getElementById("domResultadoBox") -> Nodo ${cajaRes.tagName} (#domResultadoBox)\n`;
+
+  // Paso 2: Lectura y conversión
+  const rawIp = inputIp.value;
+  const rawPuerto = inputPuerto.value;
+  const ip = rawIp.trim();
+  const puerto = Number(rawPuerto);
+
+  log += `> [PASO 2] inputIp.value -> "${rawIp}" (tipo: ${typeof rawIp})\n`;
+  log += `> [PASO 2] inputPuerto.value -> "${rawPuerto}" (tipo: ${typeof rawPuerto})\n`;
+  log += `> [PASO 2] Number("${rawPuerto}") -> ${puerto} (tipo: ${typeof puerto}, isNaN: ${isNaN(puerto)})\n`;
+
+  // Paso 3: Condicional
+  let mensaje = "";
+  let bg = "";
+  let fg = "";
+  let rama = "";
+
+  if (isNaN(puerto)) {
+    rama = "Rama 1 (isNaN - Fallo de conversión numérica)";
+    mensaje = "✖ Error de Tipado: El puerto introducido no es numérico. 'Number()' devolvió NaN.";
+    bg = "#fee2e2";
+    fg = "#991b1b";
+  } else if (ip.startsWith("192.168.") && (puerto === 80 || puerto === 443)) {
+    const proto = puerto === 443 ? "HTTPS (Cifrado seguro)" : "HTTP (Estándar)";
+    rama = "Rama 2 (IP LAN + Puerto Web Autorizado)";
+    mensaje = `✔ Conexión Autorizada: Servicio ${proto} en subred local del Carlos III (${ip}:${puerto}).`;
+    bg = "#dcfce7";
+    fg = "#14532d";
+  } else if (!ip.startsWith("192.168.") && !ip.startsWith("10.")) {
+    rama = "Rama 3 (IP Externa / Pública)";
+    mensaje = `⚠️ Alerta de Seguridad: La IP ${ip} es pública o externa al centro. Conexión denegada por cortafuegos.`;
+    bg = "#fef3c7";
+    fg = "#92400e";
+  } else {
+    rama = "Rama 4 (Puerto no autorizado)";
+    mensaje = `ℹ️ IP local correcta (${ip}), pero el puerto ${puerto} no corresponde a servicio web autorizado (80 / 443).`;
+    bg = "#e0f2fe";
+    fg = "#075985";
+  }
+
+  log += `> [PASO 3] Evaluación Condicional -> Se ejecutó: ${rama}\n`;
+
+  // Paso 4: Inyección en el DOM
+  cajaRes.textContent = mensaje;
+  cajaRes.style.backgroundColor = bg;
+  cajaRes.style.color = fg;
+  cajaRes.style.borderColor = fg;
+  cajaRes.classList.add('dom-highlight');
+
+  log += `> [PASO 4] cajaRes.textContent modificado con éxito en el DOM.\n`;
+  log += `> [PASO 4] cajaRes.style.backgroundColor fijado a "${bg}".`;
+
+  if (logBox) logBox.textContent = log;
 }
 
 // 6. CONSOLA DE CÓDIGO JS INTEGRADA
